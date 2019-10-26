@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
@@ -7,23 +8,34 @@ namespace OptiqueGames
 {
     public class Character : MonoBehaviour
     {
-
+        [SerializeField] private Transform _body;
         [SerializeField] private AnimationCurve _singleStepAltitudeCurve;
         [SerializeField] private float _singleStepDuration;
+        [SerializeField] private float _singleStepLength;
         [SerializeField] private float _singleStepMaxAltitude;
-        
-        [SerializeField] private GameGrid _gameGrid;
+
+        private Vector2 _movementDirection = new Vector2(0.8f, 0.6f);
 
 
         private void Update()
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 StepForward();
             }
+            
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                _movementDirection.x *= -1f;
+            }
         }
 
-        private IEnumerator Jump(Vector2 targetPosition, float duration, float maxAltitude, AnimationCurve verticalCurve)
+        private void OnLanded()
+        {
+            StepForward();
+        }
+
+        private IEnumerator Jump(Vector2 targetPosition, float duration, float maxAltitude, AnimationCurve verticalCurve, Action landedCallback = null)
         {
             float curveDeltaTime = 1f / duration;
             Vector2 previousPosition = transform.position;
@@ -34,23 +46,29 @@ namespace OptiqueGames
                 float normalizedAltitude = verticalCurve.Evaluate(curveTime);
                 float scaledAltitude = normalizedAltitude * maxAltitude;
 
-                Vector2 resultPosition = Vector2.MoveTowards(previousPosition, targetPosition, Vector2.Distance(previousPosition, targetPosition) * curveTime) +
-                                         Vector2.up * scaledAltitude;
+                Vector2 resultPosition = Vector2.MoveTowards(previousPosition, targetPosition,
+                    Vector2.Distance(previousPosition, targetPosition) * curveTime);
 
                 transform.position = resultPosition;
+                _body.localPosition = Vector3.up * scaledAltitude;
                 
                 yield return new WaitForEndOfFrame();
                 duration -= Time.deltaTime;
             }
             
             transform.position = targetPosition;
+            _body.localPosition = Vector3.zero;
+            
+            landedCallback?.Invoke();
         }
 
         private void StepForward()
         {
-            Vector3 tapPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            StartCoroutine(Jump(new Vector2(tapPosition.x, tapPosition.y), _singleStepDuration, _singleStepMaxAltitude,
-                _singleStepAltitudeCurve));
+            //Vector3 tapPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            Vector2 targetPosition = new Vector2(transform.position.x, transform.position.y) + _movementDirection * _singleStepLength;
+            
+            StartCoroutine(Jump(targetPosition, _singleStepDuration, _singleStepMaxAltitude, _singleStepAltitudeCurve, OnLanded));
         }
     }
 }
