@@ -42,6 +42,8 @@ namespace OptiqueGames
                 yield return new WaitForEndOfFrame();
                 duration -= Time.deltaTime;
             }
+            
+            transform.position = targetPosition;
         }
 
         private void StepForward()
