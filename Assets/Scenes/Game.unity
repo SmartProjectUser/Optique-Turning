@@ -247,13 +247,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23eecdcc3d7bb487ca48fb1347bb6bea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CellPosition: {x: 0, y: 0, z: 0}
+  _directionInfluence: {fileID: 0}
+  _gameGrid: {fileID: 970598752}
   _body: {fileID: 1397918674}
   _singleStepAltitudeCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: -0.0014648438
       inSlope: 2
       outSlope: 2
       tangentMode: 0
@@ -261,27 +264,36 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.4991657
-      value: 0.9952899
-      inSlope: 0.021528672
-      outSlope: 0.021528672
+      time: 0.27709886
+      value: 0.81106144
+      inSlope: 1.2799695
+      outSlope: 1.2799695
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.106247224
+      outWeight: 0.06581334
+    - serializedVersion: 3
+      time: 0.7519176
+      value: 0.9485311
+      inSlope: -0.44326565
+      outSlope: -0.44326565
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.12141582
+      outWeight: 0.1384919
     - serializedVersion: 3
       time: 0.99786377
       value: 0.003578186
-      inSlope: -2.0153732
-      outSlope: -2.0153732
+      inSlope: -8.680764
+      outSlope: -8.680764
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.09809809
+      inWeight: 0.033030715
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _singleStepDuration: 0.5
+  _singleStepDuration: 0.65
   _singleStepLength: 0.625
   _singleStepMaxAltitude: 0.5
 --- !u!4 &947564000
@@ -292,7 +304,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947563997}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.995, y: -2.234, z: 0}
+  m_LocalPosition: {x: 1.995, y: -2.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1397918674}
@@ -688,7 +700,7 @@ Tilemap:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Origin: {x: -2, y: -6, z: -1}
   m_Size: {x: 9, y: 11, z: 2}
-  m_TileAnchor: {x: 0, y: 0, z: 0}
+  m_TileAnchor: {x: -0.5, y: -0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
     e00: 1
