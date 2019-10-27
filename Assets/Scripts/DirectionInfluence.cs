@@ -21,11 +21,14 @@ namespace OptiqueGames
         private Vector2 _velocity;
         private bool _isHidden = false;
         private SpriteRenderer _renderer;
+        private bool _hasStarted = false;
 
 
         public void UpdateHandSprite(Vector2Int direction)
         {
             int dir = direction == Vector2Int.right ? -1 : 1;
+            
+            
             
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * dir, transform.localScale.y, transform.localScale.z);
             transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, Mathf.Abs(transform.localEulerAngles.z) * dir);
@@ -43,10 +46,16 @@ namespace OptiqueGames
                 return;
             }
             
-            if (Input.GetKeyDown(KeyCode.C))
+            if (Input.GetMouseButtonDown(0))
             {
-
-                OnInfluenced();
+                if (_hasStarted)
+                {
+                    OnInfluenced();
+                }
+                else
+                {
+                    _hasStarted = true;
+                }
             }
 
             Vector2 position = new Vector2(transform.position.x, transform.position.y);

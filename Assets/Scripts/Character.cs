@@ -42,7 +42,7 @@ namespace OptiqueGames
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetMouseButtonDown(0))
             {
                 StepForward();
             }
@@ -73,6 +73,7 @@ namespace OptiqueGames
             Vector3 targetPosition = _gameGrid.GetNextCellPosition(transform.position, _movementDirection * _influenceTilesCount);
 
             StartCoroutine(Jump(targetPosition, _influenceFlyDuration, _singleStepMaxAltitude, _influenceAltitudeCurve, OnLanded));
+            transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -99,6 +100,7 @@ namespace OptiqueGames
             }
             else
             {
+                
                 StepForward();
             }
         }
