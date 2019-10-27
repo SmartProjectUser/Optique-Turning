@@ -7,20 +7,33 @@ namespace OptiqueGames
 {
     public class Character : MonoBehaviour
     {
+        public bool IsDead => _isDead;
+        public Vector2Int MovementDirection => _movementDirection;
+        
         [SerializeField] private DirectionInfluence _directionInfluence;
         
         [SerializeField] private GameGrid _gameGrid;
         [SerializeField] private Transform _body;
         [SerializeField] private AnimationCurve _singleStepAltitudeCurve;
         [SerializeField] private AnimationCurve _influenceAltitudeCurve;
+        [SerializeField] private AnimationCurve _respawnFallingSpeedCurve;
+        [SerializeField] private float _respawnFallingDuration;
         [SerializeField] private float _singleStepDuration;
         [SerializeField] private float _influenceFlyDuration;
         [SerializeField] private float _singleStepMaxAltitude;
+        [SerializeField] private int _influenceTilesCount = 2;
+
+        [SerializeField] private int _respawnBackward = 5;
 
         private Vector2Int _movementDirection = Vector2Int.right;
 
+        
+
         private Coroutine _jumpCoroutine = null;
         private bool _insideWater = false;
+        private bool _isDead = false;
+
+        
 
         private void Awake()
         {
@@ -37,6 +50,11 @@ namespace OptiqueGames
 
         private void OnReceiveInfluence()
         {
+            if (_isDead)
+            {
+                return;
+            }
+            
             if (_jumpCoroutine != null)
             {
                 StopCoroutine(_jumpCoroutine);
@@ -52,24 +70,24 @@ namespace OptiqueGames
                 _movementDirection = Vector2Int.right;
             }
 
-            Vector3 targetPosition = _gameGrid.GetNextCellPosition(transform.position, _movementDirection * 2);
+            Vector3 targetPosition = _gameGrid.GetNextCellPosition(transform.position, _movementDirection * _influenceTilesCount);
 
             StartCoroutine(Jump(targetPosition, _influenceFlyDuration, _singleStepMaxAltitude, _influenceAltitudeCurve, OnLanded));
         }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.CompareTag("Respawn"))
+            if (other.CompareTag("Ground"))
             {
-                _insideWater = true;
+                _insideWater = false;
             }
         }
         
         private void OnTriggerExit2D(Collider2D other)
         {
-            if (other.CompareTag("Respawn"))
+            if (other.CompareTag("Ground"))
             {
-                _insideWater = false;
+                _insideWater = true;
             }
         }
 
@@ -77,7 +95,7 @@ namespace OptiqueGames
         {
             if (_insideWater)
             {
-                
+                StartCoroutine(Death());
             }
             else
             {
@@ -112,6 +130,50 @@ namespace OptiqueGames
             _body.localPosition = Vector3.zero;
             
             landedCallback?.Invoke();
+        }
+
+        private IEnumerator Death()
+        {
+            _isDead = true;
+                
+            yield return new WaitForSeconds(1f);
+
+
+            StartCoroutine(Respawn());
+        }
+
+        private IEnumerator Respawn()
+        {
+            GameGrid.StepData stepData = _gameGrid.GetDataFromProgressStack(_respawnBackward);
+            
+            Vector3 respawnPosition = stepData.GetCellWorldPosition();
+            _movementDirection = stepData.MovementDirection;
+            _directionInfluence.UpdateHandSprite(_movementDirection);
+
+            transform.position = respawnPosition;
+            float startAltitude = 7;
+
+            float time = _respawnFallingDuration;
+
+            while (time > 0)
+            {
+                float curveTime = 1f - (1f / _respawnFallingDuration) * time;
+
+                float currentAltitude = _respawnFallingSpeedCurve.Evaluate(curveTime) * startAltitude;
+
+                _body.localPosition = Vector3.up * currentAltitude;
+                
+                yield return new WaitForEndOfFrame();
+                time -= Time.deltaTime;
+            }
+            
+            _body.localPosition = Vector3.zero;
+            
+            yield return new WaitForSeconds(.5f);
+
+            _isDead = false;
+            
+            StepForward();
         }
 
         private Vector3 GetNextDestinationPoint()
